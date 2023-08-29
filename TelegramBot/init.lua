@@ -1,4 +1,4 @@
-require("/TelegramBot/RabbitDream")
+require("Modules.RabbitDream")
 
 CreateTable("System", {"token", "admin_password", "last_update_id"})
 

@@ -1,5 +1,5 @@
-require "/TelegramBot/TelegramProvider"
-require "/TelegramBot/Log"
+require "Modules.TelegramProvider"
+require "Modules.Log"
 
 
 local actions = {}

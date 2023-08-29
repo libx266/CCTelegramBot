@@ -1,4 +1,4 @@
-require "/TelegramBot/RabbitDream"
+require "Modules.RabbitDream"
 json = require "/TelegramBot/json"
 
 local function UrlHandler(url)

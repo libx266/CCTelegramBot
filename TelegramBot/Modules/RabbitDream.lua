@@ -1,4 +1,5 @@
-require "/TelegramBot/RabbitCrypt"
+require "Modules.RabbitCrypt"
+require "config"
 print("inject encryption, set password:")
 PASSWORD = tonumber(io.read())
 
@@ -7,11 +8,11 @@ local mkdir = function (name)
 end
 
 local open = function(folder, name, mod)
-    return io.open("./"..folder.."/"..name..".txt", mod)
+    return io.open(DatabasePath.."/"..folder.."/"..name..".txt", mod)
 end
 
 local remove = function(folder, name)
-    fs.delete("./"..folder.."/"..tostring(name)..".txt")
+    fs.delete(DatabasePath.."/"..folder.."/"..tostring(name)..".txt")
 end
 
 local stringbuilderBase = function(list, sep)
