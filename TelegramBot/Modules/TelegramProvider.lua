@@ -1,10 +1,4 @@
-require "Modules.RabbitDream"
-json = require "/TelegramBot/json"
-
-local function UrlHandler(url)
-    --url = string.gsub(url, " ", "%%20")
-    return url
-end
+local Sr = require "Bot.Repositories.SettingsRepository"
 
 
 local HttpGet = function(url)
@@ -12,13 +6,20 @@ local HttpGet = function(url)
     return resp.readAll()
 end
 
-settings = InitTable("System").GetID(1)
-local endpoint = "https://api.telegram.org/bot"..settings.token.."/"
+local token = Sr.GetToken()
+local endpoint = "https://api.telegram.org/bot"..token.."/"
 
-function SendMessage(telegram_chat_id, text)
-    return HttpGet(endpoint.."sendMessage?chat_id="..telegram_chat_id.."&text="..text)
-end
 
-function GetUpdates(offset_id)
-    return json:decode(HttpGet(endpoint.."getUpdates?offset="..offset_id)).result
-end
+return 
+{
+    SendMessage = function(telegram_chat_id, text)
+        return HttpGet(endpoint.."sendMessage?chat_id="..telegram_chat_id.."&text="..text)
+    end,
+    GetUpdates = function(offset_id)
+        return HttpGet(endpoint.."getUpdates?offset="..offset_id)
+    end
+}
+
+
+
+

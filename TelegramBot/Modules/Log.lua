@@ -7,22 +7,25 @@ local log = function(text)
     color(colors.white)
 end
 
-Log = function(text)
+return 
+{
+    Log = function(text)
     color(colors.lightGray)
     log(text)
-end
+    end,
 
-LogInfo = function(text)
-    color(colors.green)
-    log(text)
-end
+    LogInfo = function(text)
+        color(colors.green)
+        log(text)
+    end,
 
-LogWarning = function(text)
-    color(colors.yellow)
-    log(text)
-end
+    LogWarning = function(text)
+        color(colors.yellow)
+        log(text)
+    end,
 
-LogError = function(text)
-    color(colors.red)
-    log(text)
-end
+    LogError = function(text)
+        color(colors.red)
+        log(text)
+    end
+}

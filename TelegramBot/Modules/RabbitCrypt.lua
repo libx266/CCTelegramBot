@@ -55,28 +55,31 @@ local function split(inputstr, sep)
     return t
 end
 
-function Encode(text, password)
-    local result = {}
-    for i = 1, #text do
-        password = random(password)
-        local item = string.byte(text, i, i) + password
-        local uint = math.ceil(math.abs(item))
-        table.insert(result, basen(uint, 36))
-    end
-    return stringbuilder(result, "&")
-end
-
-function Decode(text, password)
-    local result = {}
-    text = split(text, "&")
-    for i = 1, #text do
-        password = random(password)
-        local orig = math.ceil(math.abs(password))
-        local compare = tonumber(text[i], 36)
-        local char = math.abs(compare - orig)
-        if char >= 0 and char < 256 then
-            table.insert(result, string.char(char))
+return 
+{
+    Encode = function(text, password)
+        local result = {}
+        for i = 1, #text do
+            password = random(password)
+            local item = string.byte(text, i, i) + password
+            local uint = math.ceil(math.abs(item))
+            table.insert(result, basen(uint, 36))
         end
+        return stringbuilder(result, "&")
+    end,
+
+    Decode = function(text, password)
+        local result = {}
+        text = split(text, "&")
+        for i = 1, #text do
+            password = random(password)
+            local orig = math.ceil(math.abs(password))
+            local compare = tonumber(text[i], 36)
+            local char = math.abs(compare - orig)
+            if char >= 0 and char < 256 then
+                table.insert(result, string.char(char))
+            end
+        end
+        return stringbuilder(result, "")
     end
-    return stringbuilder(result, "")
-end
+}
