@@ -14,6 +14,6 @@ return function(chat_id, msg_text)
             Tg.SendMessage(chat_id, "Lua code is invalid or throw error, transaction revert")
         end
     else
-        Tg.SendMessage(chat_id, "You've not admin rules to this command") 
+        Tg.SendMessage(chat_id, MSG_NOT_ADMIN) 
     end
 end

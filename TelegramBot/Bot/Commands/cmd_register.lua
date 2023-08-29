@@ -1,6 +1,7 @@
 local Tg = require "Bot.Service.TelegramService"
 local Us = require "Bot.Service.UsersService"
 local Cs = require "Bot.Service.CmdService"
+require "const"
 
 return function(actions, chat_id)
     if Us.CheckAdmin(chat_id) then
@@ -17,6 +18,6 @@ return function(actions, chat_id)
             end
         end
     else
-        Tg.SendMessage(chat_id, "You've not admin rules to this command")
+        Tg.SendMessage(chat_id, MSG_NOT_ADMIN)
     end
 end
