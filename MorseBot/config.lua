@@ -5,5 +5,6 @@ return
     TerminateSide = "front",
     ReceiveSide = "back",
     ReceiveTimeout = 0.5,
-    MorsePreset = Morse.Presets.VeryFast
+    MorsePreset = Morse.Presets.VeryFast,
+    LocalAddress = "...."
 }
