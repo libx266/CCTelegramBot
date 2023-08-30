@@ -1,4 +1,4 @@
-
+require "const"
 
 local TICKS = {}
 
@@ -6,7 +6,7 @@ TICKS["."] = 2
 TICKS["-"] = 5
 TICKS[" "] = 5
 
-local TICKS_PERIOD = 0.05
+local TICKS_PERIOD = MIN_TIMEOUT
 local TOLERANCE_TICKS = 1;
 
 local SOUNDS = {}
@@ -152,7 +152,7 @@ return
                 print(result)
             end
         end
-        
+
         return result
     end,
 
