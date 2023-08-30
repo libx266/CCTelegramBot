@@ -1,7 +1,7 @@
 local Morse = require "Modules.Morse"
-Morse.ChangePreset(Morse.Presets.VeryFast)
 
 local config = require "config"
+Morse.ChangePreset(config.MorsePreset)
 
 local cmd_set_right_positive = require "Commands.cmd_set_right_positive"
 local cmd_set_right_negative = require "Commands.cmd_set_right_negative"
