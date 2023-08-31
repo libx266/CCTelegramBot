@@ -56,13 +56,12 @@ local function transfer(address, message)
     return MP_STATUS_TRANSMITTED
 end
 
-local function trust_transfer(address, message)
+local function accepted_transfer(address, message)
     local status = transfer(address, message)
-    print(status)
     if status == MP_STATUS_TRANSMITTED then
         os.sleep(config.ReceiveTimeout)
         local response = receive()
-        print(textutils.serialize(response))
+        print("get transfer response: "..textutils.serialize(response))
         if response.Status == MP_STATUS_RECEIVED then
             if response.Data == MP_CODE_RECEIVED then
                 return {Status = MP_STATUS_TRANSMITTED_ACCEPT, Response = response}
@@ -72,9 +71,21 @@ local function trust_transfer(address, message)
         elseif response.Status == MP_STATUS_EMPTY then
             return { Status = MP_STATUS_TRANSMITTED_TIMEOUT}
         end
-        return response.Status
+        return {Status = response.Status}
     end
-    return {Ststus = status}
+    return {Status = status}
+end
+
+local function trust_fransfer(address, message, attempts)
+    if attempts == nil then
+        attempts = MP_SYSTEM_TRANSFER_ATTEMPTS
+    end
+    local response = accepted_transfer(address, message)
+    if response.Status ~= MP_STATUS_TRANSMITTED_ACCEPT and attempts > 0 then
+        return trust_fransfer(address, message, attempts - 1)
+    end
+    return response
+
 end
 
 
@@ -84,15 +95,14 @@ return
     Receive = receive,
 
     Ping = function (address) 
-        local response = trust_transfer(address, MP_CODE_PING)
+        local response = trust_fransfer(address, MP_CODE_PING)
         return response.Status
     end,
 
     Listen = function (messages_handler)
         while not redstone.getInput(config.TerminateSide) do
             local message = receive()
-            print("listen message")
-            print(textutils.serialize(message))
+            print("listen message: "..textutils.serialize(message))
             if message.Status == MP_STATUS_RECEIVED then
                 if message.Data == MP_CODE_PING then
                     transfer(message.SenderAddress, MP_CODE_RECEIVED)

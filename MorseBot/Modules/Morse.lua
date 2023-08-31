@@ -145,12 +145,8 @@ return
 
         local result = table.concat(str, "")
         
-        if #result > 0 then
-            if print_func then
-                print_func(result)
-            else
-                print(result)
-            end
+        if #result > 0 and print_func then
+            print_func(result)
         end
 
         return result
