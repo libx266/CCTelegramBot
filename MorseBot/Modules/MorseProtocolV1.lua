@@ -104,9 +104,7 @@ return
             local message = receive()
             print("listen message: "..textutils.serialize(message))
             if message.Status == MP_STATUS_RECEIVED then
-                if message.Data == MP_CODE_PING then
-                    transfer(message.SenderAddress, MP_CODE_RECEIVED)
-                end
+                transfer(message.SenderAddress, MP_CODE_RECEIVED)
             end
             messages_handler(message)
             os.sleep(config.ReceiveTimeout)
