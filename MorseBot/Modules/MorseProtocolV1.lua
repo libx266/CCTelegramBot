@@ -1,6 +1,7 @@
 local Morse = require "Modules.Morse"
 local config = require "config"
 require "const"
+local Hash = require "Modules.Hash"
 
 local function split(inputstr, sep)
     if sep == nil then sep = "%s" end
@@ -19,12 +20,19 @@ local function receive()
         if #message_partial > 2 then
             local target_address = message_partial[1]
             local sender_address = message_partial[2]
+            local received_hash = message_partial[3]
+            table.remove(message_partial, 1)
             table.remove(message_partial, 1)
             table.remove(message_partial, 1)
             local data = table.concat(message_partial, " ")
 
             if target_address == config.LocalAddress then
-                return { Status = MP_STATUS_RECEIVED, Data = data, SenderAddress = sender_address}
+                local computed_hash = Hash(data)
+                if computed_hash == received_hash then
+                    return { Status = MP_STATUS_RECEIVED, Data = data, SenderAddress = sender_address}
+                else
+                    return {Status = MP_STATUS_TRANSMITTED_CORRUPT, Data = data, SenderAddress = sender_address, ReceivedHash = received_hash, ComputedHash = computed_hash}
+                end
             else
                 return { Status = MP_STATUS_ALIEN, Data = data, SenderAddress = sender_address, TargetAddress = target_address}
             end
@@ -50,7 +58,8 @@ local function transfer(address, message)
         return MP_STATUS_INVALID
     end
 
-    local msg = address.." "..config.LocalAddress.." "..message
+    local hash = Hash(message)
+    local msg = address.." "..config.LocalAddress.." "..hash.." "..message
     print("transfer message:  "..msg)
     Morse.Transmit(msg, config.ReceiveSide)
     return MP_STATUS_TRANSMITTED
