@@ -1,4 +1,5 @@
 require "const"
+require "Modules.Utils"
 
 local TICKS = {}
 
@@ -156,16 +157,7 @@ return
 
     ChangePreset = function(preset)
 
-        local function split(inputstr, sep)
-            if sep == nil then sep = "%s" end
-            local t={}
-            for str in string.gmatch(inputstr, "([^"..sep.."]+)") do
-                table.insert(t, tonumber(str))
-            end
-            return t
-        end
-
-        local val = split(preset, " ")
+        local val = split(preset, " ", tonumber)
 
         TICKS["."] = val[1]
         TICKS["-"] = val[2]

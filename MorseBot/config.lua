@@ -7,5 +7,7 @@ return
     ReceiveTimeout = 0.5,
     MorsePreset = Morse.Presets.VeryFast,
     LocalAddress = "....",
-    FirendAddress = "----"
+    FirendAddress = "----",
+    ResourcePath = "/MorseBot/Resources/",
+    LogsPath = "/MorseBot/Logs"
 }

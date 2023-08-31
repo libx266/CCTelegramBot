@@ -1,5 +1,6 @@
 local Morse = require "Modules.Morse"
 local config = require "config"
+Morse.ChangePreset(config.MorsePreset)
 require "const"
 local Hash = require "Modules.Hash"
 
@@ -106,6 +107,14 @@ return
     Ping = function (address) 
         local response = trust_fransfer(address, MP_CODE_PING)
         return response.Status
+    end,
+
+    TransferTcp = function(address, message)
+        return trust_fransfer(address, message)
+    end,
+
+    TransferUdp = function (address, message)
+        return transfer(address, message)
     end,
 
     Listen = function (messages_handler)
