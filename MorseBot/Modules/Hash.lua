@@ -3,13 +3,21 @@ morse_decode[" "] = 3
 morse_decode["."] = 4
 morse_decode["-"] = 5
 
-local seed = 1411
-local scale = 8192
-local min_value = 512
-local max_value = 65536
+local seed_small = 75.41176
+local seed_big = 33.12008
+
+local scale_min_factor = 128
+local small_max = 8192
+local big_max = 65536 - small_max - 1
 
 
-local function rand(val, last)
+local function scale(res, max_value)
+    return math.floor((res - math.floor(res)) * max_value) 
+end
+
+
+
+local function rand(val, last, big)
 
     local a = math.exp(val)
     local b = last / (val + math.pi)
@@ -18,10 +26,14 @@ local function rand(val, last)
     local d = math.sin(b)
     local e = math.tanh(a)
 
-    local result = math.pow(c, math.abs(c/ d)) * e - 0.07876
+    local result = math.pow(c, math.abs(c/ d)) * e - b
 
-    local scaled_result = result * scale
-    return (scaled_result >= min_value and scaled_result < max_value) and result or rand(val + 0.1488, last * 1.107)
+    local max_value = big and big_max or small_max
+    local min_value = max_value / scale_min_factor
+
+    local condition = scale(result, max_value) > min_value and result < small_max * 16
+
+    return condition and result or rand(val, math.atan2(math.ceil(a), math.ceil(last)), big)
 end
 
 
@@ -56,22 +68,26 @@ function encode(number)
 end
 
 
-return function(morse)
+return function(morse, big_seed, small_seed)
 
-    if #morse < 1 then
-        print("compute empty hash")
-        return "................"
+    if not big_seed then
+        big_seed = seed_big
     end
 
-    local result = seed
+    if not small_seed then
+        small_seed = seed_small
+    end
 
+    local result_small = small_seed
+    local result_big = big_seed
     
     for i = 1, #morse do
-        local s = morse:sub(i,i)
-        result = rand(morse_decode[s], result)
+        local s = morse_decode[morse:sub(i,i)]
+        result_small = rand(s, result_small, false)
+        result_big = rand(s, result_big, true)
     end
 
-    local result = math.floor(result * scale)
+    local result = scale(result_big, big_max) + scale(result_small, small_max)
     print("computed hash:  "..result)
     return encode(result)
 end
