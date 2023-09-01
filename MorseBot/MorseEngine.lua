@@ -1,5 +1,6 @@
 local config = require "config"
 require "Modules.Utils"
+local hash = require "Modules.Hash"
 
 local MPClient = require "Modules.MorseProtocolV1"
 
@@ -19,6 +20,7 @@ return
             if message.Status ~= MP_STATUS_EMPTY then
 
                 if message.Status == MP_STATUS_RECEIVED then
+                    message.Hash = hash(message.Data, true)
                     log(fs.combine(config.LogsPath, "log.txt"), message)
                 end
 

@@ -57,7 +57,7 @@ function encode(number)
     local zeros = ""
 
     if #result < 16 then
-        for i = #result, 16 do
+        for i = #result, 15 do
             zeros = zeros.."."
         end
     end
@@ -67,7 +67,7 @@ function encode(number)
 end
 
 
-return function(morse, big_seed, small_seed)
+return function(morse, is_decimal, big_seed, small_seed)
 
     if not big_seed then
         big_seed = seed_big
@@ -88,5 +88,10 @@ return function(morse, big_seed, small_seed)
 
     local result = scale(result_big, big_max) + scale(result_small, small_max)
     print("computed hash:  "..result)
+
+    if is_decimal then
+        return result
+    end
+    
     return encode(result)
 end
