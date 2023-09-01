@@ -12,7 +12,7 @@ local big_max = 65536 - small_max - 1
 
 
 local function scale(res, max_value)
-    return math.floor((res - math.floor(res)) * max_value) 
+    return math.abs(math.floor((res - math.floor(res)) * max_value)) 
 end
 
 
@@ -32,7 +32,7 @@ local function rand(val, last, big)
 
     local condition = scale(result, max_value) > min_value and result < small_max * 16
 
-    return condition and result or rand(val, math.atan2(math.ceil(a), math.ceil(last)), big)
+    return condition and result or rand(val, math.atan2(a, last), big)
 end
 
 
