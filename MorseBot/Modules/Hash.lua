@@ -24,9 +24,8 @@ local function rand(val, last, big)
 
     local c = math.atan(a)
     local d = math.sin(b)
-    local e = math.tanh(a)
 
-    local result = math.pow(c, math.abs(c/ d)) * e - b
+    local result = math.pow(c, math.abs(c/ d)) - b
 
     local max_value = big and big_max or small_max
     local min_value = max_value / scale_min_factor
