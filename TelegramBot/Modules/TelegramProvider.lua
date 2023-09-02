@@ -1,7 +1,12 @@
 local Sr = require "Bot.Repositories.SettingsRepository"
 
 
+local UrlHandler = function(url) 
+    return string.gsub(url, "%s", "%%20")
+end
+
 local HttpGet = function(url)
+    url = UrlHandler(url)
     local resp = http.get(url)
     return resp.readAll()
 end
