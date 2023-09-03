@@ -29,60 +29,92 @@ local function newPage()
         line.finish()
     end
 
-    function Page.print(title) 
-        local page = MCP.newPage()
-
+    function Page.forEach(on_line_iterate_action, on_span_action, after_line_iterate_action)
         for l = 1, #Page.Lines do
-            page.setCursorPos(1, l)
+            if type(on_line_iterate_action) == "function" then
+                on_line_iterate_action(l)
+            end
+
             local line = Page.Lines[l]
 
             for s = 1, #line.Spans do
                 local span = line.Spans[s]
-                page.write(span.Text, span.Color)
+                if type(on_span_action) == "function" then
+                    on_span_action(span)
+                end
+            end
+
+            if type(after_line_iterate_action) == "function" then
+                after_line_iterate_action()
             end
         end
+    end
+
+    function Page.print(title) 
+        local page = MCP.newPage()
+
+        local function on_line_iter(line_index)
+            page.setCursorPos(1, line_index)
+        end
+
+        local function span_handle(span)
+            page.write(span.Text, span.Color)
+        end
+
+        Page.forEach(on_line_iter, span_handle)
 
         page.print(title)
+    end
+
+    function  Page.replace(pattern, target)
+        local function span_handle(span)
+            local text = span.Text
+            text = string.gsub(text, pattern, target)
+            span.Text = text
+        end
+        Page.forEach(nil, span_handle)
     end
 
     function Page.display(device)
         local x, y = device.getCursorPos()
         local default_color = device.getTextColor()
 
-        for l = 1, #Page.Lines do
-            device.setCursorPos(1, y + l)
-            local line = Page.Lines[l]
-
-            for s = 1, #line.Spans do
-                local span = line.Spans[s]
-                device.setTextColor(span.Color)
-                device.write(span.Text)
-            end
+        local function on_line_iter(line_index) 
+            device.setCursorPos(1, y + line_index)
         end
+
+        local function span_handle(span)
+            device.setTextColor(span.Color)
+            device.write(span.Text)
+        end
+
+        Page.forEach(on_line_iter, span_handle)
 
         device.setTextColor(default_color)
     end
 
     function Page.getHtml(is_terminal)
         local html = { head }
+        local row = {}
         table.insert(html, is_terminal and "<body style='background:black'>" or "<body>")
 
-        for l = 1, #Page.Lines do
-            local row = { "<pre>"}
-            local line = Page.Lines[l]
+        local function on_line_iter(l)
+            row = { "<pre>" }
+        end
 
-            for s = 1, #line.Spans do
-                local span = line.Spans[s]
-                local span_html = span_row
-                span_html = string.gsub(span_html, "color", colors_dict.Encode[span.Color])
-                span_html = string.gsub(span_html, "text", span.Text)
-                table.insert(row, span_html)
-            end
+        local function  span_handle(span)
+            local span_html = span_row
+            span_html = string.gsub(span_html, "color", colors_dict.Encode[span.Color])
+            span_html = string.gsub(span_html, "text", span.Text)
+            table.insert(row, span_html)
+        end
 
+        local function after_line_iter()
             table.insert(row, "</pre>")
-
             table.insert(html, table.concat(row, ""))
         end
+
+        Page.forEach(on_line_iter, span_handle, after_line_iter)
 
         table.insert(html, "</body>")
 
