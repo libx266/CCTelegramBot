@@ -1,0 +1,1 @@
+return "<span class='color'>text</span>"
