@@ -72,7 +72,7 @@ local presets =
 {
     VeryFast = "1 2 2 0", --unstable
     Fast = "2 5 5 1", --default
-    Medium = "4 8 8 1",
+    Medium = "4 10 10 2",
     Slow = "8 16 16 3",
     VerySlow = "16 32 32 6",
     Piston = "512 1024 1024 128"
