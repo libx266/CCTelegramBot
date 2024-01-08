@@ -4,6 +4,8 @@ local json = require "Modules.json"
 
 return
 {
+    SendMessagePost = Tg.SendMessagePost,
+
     SendMessage = function(chat_id, msg)
         Log.Log(Tg.SendMessage(chat_id, msg))
     end,

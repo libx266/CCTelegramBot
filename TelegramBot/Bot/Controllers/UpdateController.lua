@@ -4,6 +4,9 @@ local cmd_start = require "Bot.Commands.cmd_start"
 local cmd_lua = require "Bot.Commands.cmd_lua"
 local cmd_register = require "Bot.Commands.cmd_register"
 local cmd_cmd = require "Bot.Commands.cmd_cmd"
+local cmd_cmd_list = require "Bot.Commands.cmd_cmd_list"
+local cmd_cmd_view = require "Bot.Commands.cmd_cmd_view"
+local cmd_remove = require "Bot.Commands.cmd_remove"
 
 
 return
@@ -22,6 +25,12 @@ return
                 cmd_lua(actions, id)
             elseif(m == "/register") then
                 cmd_register(actions, id)
+            elseif(m == "/list") then
+                cmd_cmd_list(id)
+            elseif (m == "/view") then
+                cmd_cmd_view(actions, id)
+            elseif (m == "/remove") then
+                cmd_remove(actions, id)
             else
                 cmd_cmd(id, m)
             end

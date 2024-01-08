@@ -10,10 +10,19 @@ local function store_cmd(chat_id, command_name, lua_code)
     end
 end
 
-local function execute_lua(lua_code)
-    Log.LogInfo("Executing lua code:")
-    Log.LogInfo(lua_code)
-    if pcall(function() load(lua_code)() end) then
+local function inject_cmds(lua_code, chat_id)
+    return string.gsub(lua_code, "@inject#([%w_]+)", function(cmdName)
+        return inject_cmds(Cr.GetCmdByChatId(chat_id, "/"..cmdName), chat_id)
+      end)
+end
+
+local function execute_lua(lua_code, chat_id)
+    if pcall(function() 
+            local code = inject_cmds(lua_code, chat_id)
+            Log.LogInfo("Executing lua code:")
+            Log.LogInfo(code) load(code)() 
+            end
+        ) then
         Log.LogInfo("Success!")
         return true
     else
@@ -25,14 +34,30 @@ end
 local function exercute_cmd(chat_id, name)
     local cmd = Cr.GetCmdByChatId(chat_id, name)
     if cmd then
-        return execute_lua(cmd)
+        return execute_lua(cmd, chat_id)
     end
     return CMD_NOT_FOUND
+end
+
+local function get_commands_list(chat_id)
+    return Cr.GetCmdsNamesList(chat_id)
+end
+
+local function view_cmd(chat_id, name)
+    local cmd = Cr.GetCmdByChatId(chat_id, name)
+    return "```lua\n"..cmd.."\n```"
+end
+
+local function remove_cmd(chat_id, name)
+    Cr.RemoveCmd(chat_id, name)
 end
 
 return 
 {
     StoreCmd = store_cmd,
     ExecuteLua = execute_lua,
-    ExecuteCmd = exercute_cmd
+    ExecuteCmd = exercute_cmd,
+    CmdList = get_commands_list,
+    CmdView = view_cmd,
+    CmdRemove = remove_cmd
 }
