@@ -1,3 +1,6 @@
+---Return next sequence value.
+---@param value number
+---@return number
 local function random(value)
     
     local a = value % 13
@@ -15,6 +18,10 @@ local function random(value)
     return result
 end
 
+---@param list string[]
+---@param sep string
+---@return string
+---Concat table with casting list values to string
 local function stringbuilder(list, sep)
     local t = { }
     for k,v in ipairs(list) do
@@ -26,7 +33,10 @@ local function stringbuilder(list, sep)
     
 end
 
-
+---@param n number number
+---@param b number base
+---@return string
+---Return encoded number by base notation
 local function basen(n,b)
     local floor,insert = math.floor, table.insert
     n = floor(n)
@@ -46,6 +56,9 @@ local function basen(n,b)
     return sign .. table.concat(t,"")
 end
 
+---@param inputstr string
+---@param sep string
+---@return string[]
 local function split(inputstr, sep)
     if sep == nil then sep = "%s" end
     local t={}
@@ -57,6 +70,9 @@ end
 
 return 
 {
+    ---@param text string
+    ---@param password number
+    ---@return string
     Encode = function(text, password)
         local result = {}
         for i = 1, #text do
@@ -68,6 +84,9 @@ return
         return stringbuilder(result, "&")
     end,
 
+    ---@param text string
+    ---@param password number
+    ---@return string
     Decode = function(text, password)
         local result = {}
         text = split(text, "&")

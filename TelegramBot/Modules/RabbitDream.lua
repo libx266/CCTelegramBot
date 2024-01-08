@@ -9,21 +9,52 @@ local Encrypter = config.UseEncryption and require "Modules.RabbitCrypt" or {
     end
 }
 
-print("inject encryption, set password:")
-local PASSWORD = tonumber(io.read())
+---@type number
+local PASSWORD = 11.187
 
+if config.UseEncryption then
+    print("inject encryption, set password:")
+    PASSWORD = tonumber(io.read())
+end
+
+---@param name string
+---@return nil
 local mkdir = function (name) 
     fs.makeDir(config.DatabasePath.."/"..name)
 end
 
+---@param folder string
+---@param name string
+---@alias openmode2 string
+---| '"r"'   # read mode (the default);
+---| '"w"'   # write mode;
+---| '"a"'   # append mode;
+---| '"r+"'  # update mode, all previous data is preserved;
+---| '"w+"'  # update mode, all previous data is erased;
+---| '"a+"'  # append update mode, previous data is preserved, writing is only allowed at the end of file.
+---| '"rb"'  # read mode(in binary mode);
+---| '"wb"'  # write mode(in binary mode);
+---| '"ab"'  # append mode(in binary mode);
+---| '"r+b"' # update mode, all previous data is preserved(in binary mode);
+---| '"w+b"' # update mode, all previous data is erased(in binary mode);
+---| '"a+b"' # append update mode, previous data is preserved, writing is only allowed at the end of file(in binary mode).
+---@param mod openmode2
+---@return file*
 local open = function(folder, name, mod)
     return io.open(config.DatabasePath.."/"..folder.."/"..name..".txt", mod)
 end
 
+---@param folder string
+---@param name string
+---@return nil
 local remove = function(folder, name)
     fs.delete(config.DatabasePath.."/"..folder.."/"..tostring(name)..".txt")
 end
 
+---@param list table
+---@param sep string
+---@return string
+---Base function to concat list with tostring items cast and without encryption
 local stringbuilderBase = function(list, sep)
     local t = { }
     for k,v in ipairs(list) do
@@ -35,10 +66,18 @@ local stringbuilderBase = function(list, sep)
     
 end
 
+---@param list string[]
+---@param sep string
+---@return string
+---Concat list with tostring items cast and with encryption
 local stringbuilder = function(list, sep) 
     return Encrypter.Encode(stringbuilderBase(list, sep), PASSWORD)
 end
 
+---@param inputstr string
+---@param sep string
+---@return string[]
+---Split string without encryption
 local splitBase = function(inputstr, sep)
     if sep == nil then sep = "%s" end
     local t={}
@@ -48,10 +87,18 @@ local splitBase = function(inputstr, sep)
     return t
 end
 
+---@param inputstr string
+---@param sep string
+---@return string[]
+---Split string with encryption decode mode
 local split = function(inputstr, sep)
     return splitBase(Encrypter.Decode(inputstr, PASSWORD), sep)
 end
 
+---@param list table[]
+---@param action fun(v: table): table
+---@return table
+---Sequence conversion by means of the specified function
 local select = function(list, action)
     local result = {}
     for k, v in pairs(list) do
@@ -60,7 +107,9 @@ local select = function(list, action)
     return result
 end
 
-
+---@param name string
+---@return table
+---Initialize table by name from local filestorage provided by config
 local function InitTable(name)
     local keys = split(open(name, "head", "r"):read(), ";")
         local foreginKeys = {}
@@ -83,6 +132,9 @@ local function InitTable(name)
             end
         end
 
+        ---@param instance table
+        ---@return string
+        ---Serialize table instance to row
         local insert = function(instance)
             local row = {}
             for k, v in pairs(keys) do
@@ -91,6 +143,10 @@ local function InitTable(name)
             return stringbuilder(row, ";")
         end
 
+        ---@param action fun(id: integer, obj: table): table
+        ---@param predicate fun(obj: table): boolean
+        ---@return table[]
+        ---Performs the specified action on each element of the sequence of table rows satisfying the predicate
         local Predicate = function(action, predicate)
             local lastID = tonumber(open(name, "lastid", "r"):read())
             local exclude = select(splitBase(open(name, "excludeid", "r"):read(), ";"), tonumber)
@@ -125,7 +181,8 @@ local function InitTable(name)
         return {
 
             
-
+            ---@param instance table
+            ---Insert object to table
             Dump = function(instance)
                 local id = tonumber(open(name, "lastid", "r"):read())
                 local file = open(name, tostring(id), "w")
@@ -138,6 +195,8 @@ local function InitTable(name)
                 file:close()
             end,
 
+            ---@param id integer
+            ---Delete row by id
             DeleteID = function(id)
                 id = tostring(id)
                 remove(name, id)
@@ -148,7 +207,8 @@ local function InitTable(name)
             end,
 
             
-
+            ---@param predicate fun(obj: table): boolean
+            ---Delete row by predicate
             DeletePredicate = function(predicate)
                 Predicate(
                     function(id, obj) 
@@ -162,6 +222,9 @@ local function InitTable(name)
                 )
             end,
 
+            ---@param id integer
+            ---@param instance table
+            ---Updating a row by id specified by the instance object
             UpdateID = function(id, instance)
                 local file = open(name, tostring(id), "w")
                 file:write(insert(instance))
@@ -169,6 +232,9 @@ local function InitTable(name)
                 print("Update row by "..id.." id")
             end,
 
+            ---@param action fun(obj: table): table
+            ---@param predicate fun(obj: table) : boolean
+            ---Updating a row by predicate specified by action on object
             UpdatePredicate = function(action, predicate)
                 Predicate(
                     function(id, obj)
@@ -181,6 +247,9 @@ local function InitTable(name)
                 )
             end,
 
+            ---@param id integer
+            ---@return table
+            ---Get row by id
             GetID = function(id)
                 local file = open(name, tostring(id), "r")
                 if file == nil then 
@@ -198,6 +267,8 @@ local function InitTable(name)
                 return result
             end,
 
+            ---@param predicate fun(item : table) : boolean
+            ---Select rows by predicate
             SelectPredicate = function(predicate)
                 return Predicate(
                     function(id, obj)
@@ -209,6 +280,8 @@ local function InitTable(name)
                 )
             end,
 
+            ---@param fileName string
+            ---Export table in csv
             ExportCSV = function(fileName)
                 local lastID = tonumber(open(name, "lastid", "r"):read())
                 local exclude = select(splitBase(open(name, "excludeid", "r"):read(), ";"), tonumber)
@@ -222,7 +295,7 @@ local function InitTable(name)
                         end
                     end
                     if check then
-                        local row = Encrypter.Decode(open(name, tostring(id)):read(), PASSWORD)
+                        local row = Encrypter.Decode(open(name, tostring(id), 'r'):read(), PASSWORD)
                         table.insert(result, id + 1, row)
                     end
                 end
@@ -235,7 +308,11 @@ local function InitTable(name)
 end
 
 return {
-    CreateTable = function(name, keys) --fk_foreginTable
+
+    ---@param name string
+    ---@param keys string[]
+    ---Crerate table by specified fields (if you want specify foregin table reference use annotation 'fk_foreginTableName')
+    CreateTable = function(name, keys)
         mkdir(name)
         local file = open(name, "head", "w")
         table.sort(keys)
