@@ -6,7 +6,7 @@ require "const"
 local function store_cmd(chat_id, command_name, lua_code)
     local user = Ur.GetUserByChatId(chat_id)
     if user then
-        Cr.StoreCmd(user.ID, command_name, lua_code)
+        Cr.StoreCmd(user.ID, command_name, lua_code, chat_id)
     end
 end
 
