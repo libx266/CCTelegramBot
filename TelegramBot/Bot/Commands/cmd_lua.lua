@@ -8,10 +8,12 @@ return function(actions, chat_id)
         Tg.SendMessage(chat_id, "Send me lua code to execute by Computer-"..os.computerID())
 
         actions[chat_id] = function(msg_text)
-            if Cs.ExecuteLua(msg_text, chat_id) then
+            if Cs.ExecuteLua(msg_text, chat_id, function (error) 
+                Tg.SendMessagePost(chat_id, error)
+            end) then
                 Tg.SendMessage(chat_id, "Everything is going as planned, Master")
             else
-                Tg.SendMessage(chat_id, "Lua code is invalid or throw error, transaction revert")
+                Tg.SendMessage(chat_id, "transaction revert")
             end
             actions[chat_id] = nil
         end

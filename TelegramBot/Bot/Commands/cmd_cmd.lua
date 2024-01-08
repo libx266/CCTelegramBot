@@ -5,13 +5,15 @@ require "const"
 
 return function(chat_id, msg_text)
     if Us.CheckAdmin(chat_id) then
-        local exec_status = Cs.ExecuteCmd(chat_id, msg_text)
+        local exec_status = Cs.ExecuteCmd(chat_id, msg_text, function (error) 
+            Tg.SendMessagePost(chat_id, error)
+        end)
         if exec_status == true then
             Tg.SendMessage(chat_id, "Everything is going as planned, Master")
         elseif exec_status == CMD_NOT_FOUND then
             Tg.SendMessage(chat_id, "Command not found, try register command by /register")
         else
-            Tg.SendMessage(chat_id, "Lua code is invalid or throw error, transaction revert")
+            Tg.SendMessage(chat_id, "transaction revert")
         end
     else
         Tg.SendMessage(chat_id, MSG_NOT_ADMIN) 

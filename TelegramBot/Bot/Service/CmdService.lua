@@ -16,25 +16,27 @@ local function inject_cmds(lua_code, chat_id)
       end)
 end
 
-local function execute_lua(lua_code, chat_id)
-    if pcall(function() 
-            local code = inject_cmds(lua_code, chat_id)
-            Log.LogInfo("Executing lua code:")
-            Log.LogInfo(code) load(code)() 
-            end
-        ) then
+local function execute_lua(lua_code, chat_id, error_print)
+    local status, error = pcall(function() 
+        local code = inject_cmds(lua_code, chat_id)
+        Log.LogInfo("Executing lua code:")
+        Log.LogInfo(code) load(code)() 
+        end
+    ) 
+    if status then
         Log.LogInfo("Success!")
         return true
     else
         Log.LogWarning("Lua code is invalid or throw error")
+        error_print(error)
         return false
     end
 end
 
-local function exercute_cmd(chat_id, name)
+local function exercute_cmd(chat_id, name, error_print)
     local cmd = Cr.GetCmdByChatId(chat_id, name)
     if cmd then
-        return execute_lua(cmd, chat_id)
+        return execute_lua(cmd, chat_id, error_print)
     end
     return CMD_NOT_FOUND
 end
