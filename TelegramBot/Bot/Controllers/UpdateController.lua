@@ -11,7 +11,7 @@ local cmd_remove = require "Bot.Commands.cmd_remove"
 
 return
 {
-    Handle = function(update)
+    Handle = function(update, add_task)
         
         local m = update.message.text
         local id = update.message.from.id
@@ -22,7 +22,7 @@ return
             if (m == "/start") then
                 cmd_start(actions, id) 
             elseif(m == "/lua") then
-                cmd_lua(actions, id)
+                cmd_lua(actions, id, add_task)
             elseif(m == "/register") then
                 cmd_register(actions, id)
             elseif(m == "/list") then
@@ -32,7 +32,7 @@ return
             elseif (m == "/remove") then
                 cmd_remove(actions, id)
             else
-                cmd_cmd(id, m)
+                cmd_cmd(id, m, add_task)
             end
         end
     end
