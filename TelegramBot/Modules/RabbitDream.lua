@@ -193,6 +193,7 @@ local function InitTable(name)
                 file = open(name, "lastid", "w")
                 file:write(tostring(id))
                 file:close()
+                return id - 1
             end,
 
             ---@param id integer
