@@ -2,7 +2,6 @@ local Cs = require "Bot.Service.CmdService"
 local Us = require "Bot.Service.UsersService"
 local Tg = require "Bot.Service.TelegramService"
 require "const"
-local async = require "Modules.async"
 
 return function(chat_id, msg_text, add_task)
     if Us.CheckAdmin(chat_id) then

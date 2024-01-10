@@ -1,4 +1,5 @@
 local config = require "config"
+local log = require "Modules.Log"
 
 local function init_pool()
     local global_pool = {}
@@ -9,7 +10,6 @@ local function init_pool()
 
     return {
         ProcessingTaskCount = function ()
-            print(processingTasks)
             return processingTasks
         end,
         AddTask = function (fun)
@@ -54,13 +54,16 @@ return {
 
         local pool = nil
         local processing_tasks = 1048576
+        local processing_tasks_count = {}
         for k, v in pairs(pools) do
             local p = v.ProcessingTaskCount()
+            table.insert(processing_tasks_count, p)
             if (p < processing_tasks) then
                 pool = v
                 processing_tasks = p
             end
         end
+        log.LogInfo("Execution pool state:  "..table.concat(processing_tasks_count, " "))
         pool.AddTask(task)
     end
 }
